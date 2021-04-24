@@ -1,11 +1,12 @@
 #pragma once
+
 template <class T>
 class Stack
 {
 	int size, max_size;
 	T* mas;
 public:
-	Stack(int Max_size = 10)
+	Stack(int Max_size = 1000)
 	{
 		if (Max_size <= 0)
 		{
@@ -13,10 +14,10 @@ public:
 		}
 		max_size = Max_size;
 		mas = new T[max_size];
-		for (int i = 0; i < max_size; i++)
+		/*for (int i = 0; i < max_size; i++)
 		{
 			mas[i] = 0;
-		}
+		}*/
 		size = 0;
 	}
 
@@ -133,3 +134,4 @@ public:
 		return size;
 	}
 };
+

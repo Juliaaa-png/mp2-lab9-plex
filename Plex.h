@@ -7,6 +7,7 @@ using namespace System;
 using namespace System::Drawing;
 
 class TChart;
+class TPoint;
 struct TLine {
 	TChart *pChart;
 	TPoint *pFp; 
@@ -146,4 +147,137 @@ public:
 	void Hide(Graphics^ gr, Pen^ pen);
 	TPoint* SetCurrPoint(Graphics^ gr, Pen^ pen, int _x, int _y);
 	void AddLine(Graphics^ gr, Pen^ pen, TPoint* PointActive, TChart* NewLine);
+	virtual void MoveTo(int X, int Y)
+	{
+		TLine CurrLine;
+		TRoot* pR;
+		TPoint* pP;
+		CurrLine.pChart = this;
+		CurrLine.pFp = NULL;
+		CurrLine.pLp = NULL;
+		St.Clear();
+		St.Push(CurrLine);
+
+		while (!St.Empty())
+		{
+			CurrLine = St.Pop();
+			while (CurrLine.pFp == NULL)
+			{
+				pR = CurrLine.pChart->GetFirst();
+				pP = dynamic_cast<TPoint*>(pR);
+				if (pP != NULL)
+					CurrLine.pFp = pP;
+				else
+				{
+					St.Push(CurrLine);
+					CurrLine.pChart = dynamic_cast<TChart*>(pR);
+				}
+			}
+
+			if (CurrLine.pLp == NULL)
+			{
+				pR = CurrLine.pChart->GetLast();
+				pP = dynamic_cast<TPoint*>(pR);
+				if (pP != NULL)
+					CurrLine.pLp = pP;
+				else
+				{
+					St.Push(CurrLine);
+					CurrLine.pChart = dynamic_cast<TChart*>(pR);
+					CurrLine.pFp = NULL;
+					St.Push(CurrLine);
+				}
+			}
+			CurrLine.pChart->SetVisible(true);
+
+			if (CurrLine.pFp != NULL && CurrLine.pLp != NULL)
+			{
+				if (!CurrLine.pFp->Get())
+				{
+					CurrLine.pFp->Set(true);
+					CurrLine.pFp->SetX(CurrLine.pFp->GetX() + X);
+					CurrLine.pFp->SetY(CurrLine.pFp->GetY() + Y);
+				}
+				if (!CurrLine.pLp->Get())
+				{
+					CurrLine.pLp->Set(true);
+					CurrLine.pLp->SetX(CurrLine.pLp->GetX() + X);
+					CurrLine.pLp->SetY(CurrLine.pLp->GetY() + Y);
+				}
+
+				pP = CurrLine.pLp;
+				if (!St.Empty())
+				{
+					CurrLine = St.Pop();
+					if (CurrLine.pFp == NULL)
+						CurrLine.pFp = pP;
+					else
+						CurrLine.pLp = pP;
+					St.Push(CurrLine);
+				}
+			}
+		}
+	}
+
+	virtual void Reset()
+	{
+		TLine CurrLine;
+		TRoot* pR;
+		TPoint* pP;
+		CurrLine.pChart = this;
+		CurrLine.pFp = NULL;
+		CurrLine.pLp = NULL;
+		St.Clear();
+		St.Push(CurrLine);
+
+		while (!St.Empty())
+		{
+			CurrLine = St.Pop();
+			while (CurrLine.pFp == NULL)
+			{
+				pR = CurrLine.pChart->GetFirst();
+				pP = dynamic_cast<TPoint*>(pR);
+				if (pP != NULL)
+					CurrLine.pFp = pP;
+				else
+				{
+					St.Push(CurrLine);
+					CurrLine.pChart = dynamic_cast<TChart*>(pR);
+				}
+			}
+
+			if (CurrLine.pLp == NULL)
+			{
+				pR = CurrLine.pChart->GetLast();
+				pP = dynamic_cast<TPoint*>(pR);
+				if (pP != NULL)
+					CurrLine.pLp = pP;
+				else
+				{
+					St.Push(CurrLine);
+					CurrLine.pChart = dynamic_cast<TChart*>(pR);
+					CurrLine.pFp = NULL;
+					St.Push(CurrLine);
+				}
+			}
+			CurrLine.pChart->SetVisible(true);
+
+			if (CurrLine.pFp != NULL && CurrLine.pLp != NULL)
+			{
+				CurrLine.pFp->Set(false);
+				CurrLine.pLp->Set(false);
+
+				pP = CurrLine.pLp;
+				if (!St.Empty())
+				{
+					CurrLine = St.Pop();
+					if (CurrLine.pFp == NULL)
+						CurrLine.pFp = pP;
+					else
+						CurrLine.pLp = pP;
+					St.Push(CurrLine);
+				}
+			}
+		}
+	}
 };
